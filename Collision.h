@@ -1,9 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "Player.h"
 #include <iostream>
-#include <math.h> // absolutni hodnota
+#include <math.h>
 
 extern int blockCount;
 
@@ -13,10 +12,7 @@ struct BlockPosition
 	sf::Vector2f topRight;
 	sf::Vector2f bottomLeft;
 	sf::Vector2f bottomRight;
-	sf::Vector2f playerPosition;
 	sf::Vector2f midPoint;
-
-	float playerDistanceFromBlock;
 
 	void findMidPoint() {
 		midPoint.x = topLeft.x + 25.0f;
@@ -29,7 +25,7 @@ class Collision
 private:
 	sf::Vector2f closestPoint;
 	sf::Vector2f distanceBetweenPoint;
-	sf::Vector2f playerPosition;
+	sf::Vector2f objectPosition;
 	std::vector<BlockPosition> blockPosition;
 	std::vector<float> lineLength;
 	BlockPosition nearestBlock;
@@ -62,7 +58,7 @@ public:
 		}
 	}
 
-	void setPlayerPosition(Player& player) { playerPosition = player.getPosition(); }
+	void setObjectPosition(sf::Vector2f& objectPos) { objectPosition = objectPos; }
 
 	double mag(sf::Vector2f v) const
 	{
@@ -75,14 +71,14 @@ public:
 		return { vec.x * normer, vec.y * normer };
 	}
 
-	sf::Vector2f movePlayer()
+	sf::Vector2f moveObject()
 	{
-		return playerPosition;
+		return objectPosition;
 	}
 
 
 
-	void InCollision()
+	void InCollision(float objectSize, bool& deleteIt)
 	{
 		lineLength.clear();
 		lineLength.shrink_to_fit();
@@ -90,11 +86,11 @@ public:
 		for (auto i = 0; i < blockCount; ++i)
 		{
 
-			x = abs(blockPosition[i].midPoint.x) - abs(playerPosition.x);
-			y = abs(blockPosition[i].midPoint.y) - abs(playerPosition.y);
+			x = abs(blockPosition[i].midPoint.x) - abs(objectPosition.x);
+			y = abs(blockPosition[i].midPoint.y) - abs(objectPosition.y);
 			c = x * x + y * y;
 			lineLength.push_back(sqrt(c));
-
+			
 
 			if (minWasSet == false) {
 				min = lineLength[0];
@@ -112,29 +108,25 @@ public:
 
 
 		sf::Vector2f nearestPoint;
-		nearestPoint.x = std::max(float(nearestBlock.topLeft.x), std::min(playerPosition.x, float(nearestBlock.bottomRight.x)));
-		nearestPoint.y = std::max(float(nearestBlock.topLeft.y), std::min(playerPosition.y, float(nearestBlock.bottomRight.y)));
+		nearestPoint.x = std::max(float(nearestBlock.topLeft.x), std::min(objectPosition.x, float(nearestBlock.bottomRight.x)));
+		nearestPoint.y = std::max(float(nearestBlock.topLeft.y), std::min(objectPosition.y, float(nearestBlock.bottomRight.y)));
 
 		sf::Vector2f rayNearestPoint;
-		rayNearestPoint = nearestPoint - playerPosition;
-
-		float overLap = 25 - mag(rayNearestPoint);
+		rayNearestPoint = nearestPoint - objectPosition;
+		
+		float overLap = objectSize - mag(rayNearestPoint);
 
 		
 
 		if (std::isnan(overLap))
 			overLap = 0;
 
-		if (overLap >= 0)
-		{
-			//std::cout << "in collision   " << mag(rayNearestPoint) << std::endl;
-			playerPosition = playerPosition - norm(rayNearestPoint) * overLap;
+		if (overLap >= 0) { 
+			if (deleteIt == false)
+			objectPosition = objectPosition - norm(rayNearestPoint) * overLap; 
+			else deleteIt = false;
 		}
 
-
-
 	}
-
-		
 	
 };
