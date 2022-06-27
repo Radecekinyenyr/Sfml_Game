@@ -1,5 +1,5 @@
 # Sfml_Game
-Část hry naprogramované v sfml, základní funkce: pohyb kolize a střelba
+Část hry naprogramované v sfml, základní funkce: pohyb, kolize a střelba
 Mapa je upravitelná pomocí dvojrozměrného pole. Ta je předána metodě třídy Game a zde je předána třídě TileMap která jednotlivé bloky převede do jedné "textury"
 a pak pomocí kolize čtyřúhelník a kruh zjistí nejbližší bod mezi kruhem a čtyřúhelníkem.
 
